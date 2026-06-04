@@ -16,7 +16,7 @@ Demo en Python para agrupar Comunidades Academicas Basicas (CABAS) por afinidad 
 
 ## Instalacion recomendada
 
-En este proyecto las dependencias ya fueron instaladas en `.venv` usando Python 3.13.13. Para recrear el entorno desde cero:
+Para recrear el entorno desde cero:
 
 ```bash
 python -m venv .venv
@@ -25,7 +25,7 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-La demo usa el modelo `paraphrase-multilingual-MiniLM-L12-v2` de Sentence Transformers. En este equipo ya fue descargado y validado en la cache local `.cache/huggingface`.
+La demo usa el modelo `paraphrase-multilingual-MiniLM-L12-v2` de Sentence Transformers.
 
 ## Ejecucion
 
