@@ -6,7 +6,7 @@ El objetivo de la demo es identificar afinidades entre CABAS y agruparlas en con
 
 **Ingenieria aplicada, tecnologias convergentes y sostenibilidad de organizaciones y territorios.**
 
-La demo toma una lista de CABAS, construye una representacion textual de cada una, calcula similitud semantica y asigna cada CABA a un grupo. Luego genera un nombre y una definicion para cada agrupacion.
+La demo toma una lista de CABAS, construye una representacion textual de cada una, calcula similitud semantica y asigna cada CABA a un grupo. Luego genera una definicion basada en los terminos representativos de cada agrupacion.
 
 ## 2. Contexto estatutario usado
 
@@ -45,6 +45,9 @@ La demo esta preparada para usar:
 - `paraphrase-multilingual-MiniLM-L12-v2` como modelo semantico multilingue.
 - UMAP para reduccion dimensional.
 - HDBSCAN para agrupamiento basado en densidad.
+- Streamlit para la interfaz de usuario.
+- Plotly para visualizar matrices de afinidad internas.
+- Docker y Docker Compose para empaquetar y ejecutar la aplicacion.
 
 En el entorno del proyecto las dependencias fueron instaladas en el entorno virtual local `.venv`. El modelo `paraphrase-multilingual-MiniLM-L12-v2` tambien fue descargado y validado con una dimension de embedding de 384.
 
@@ -81,6 +84,8 @@ Cuando BERTopic esta disponible, el script carga `SentenceTransformer("paraphras
 
 Este modelo es apropiado para una demo en espanol porque es multilingue, liviano y suficiente para capturar cercania semantica entre areas como datos, territorio, energia, operaciones o automatizacion.
 
+Con estos embeddings tambien se calcula una matriz de similitud coseno. Cada valor se expresa como porcentaje de afinidad entre dos CABAS, donde 100% indica maxima cercania semantica bajo el modelo usado.
+
 ### 5.4 Agrupamiento con BERTopic
 
 BERTopic combina:
@@ -92,7 +97,34 @@ BERTopic combina:
 
 La demo configura `min_cluster_size=2` para permitir grupos pequenos, ya que el dataset de prueba es reducido.
 
-### 5.5 Respaldo local
+### 5.5 Agrupamiento por tolerancia
+
+La version 2 agrega un segundo modo de trabajo: agrupacion definiendo tolerancia. En este modo el usuario elige un porcentaje minimo de afinidad. El sistema calcula la matriz de similitud semantica entre CABAS y conecta aquellas cuyo porcentaje es igual o superior al umbral elegido.
+
+El resultado se construye como grupos de CABAS conectadas por esa regla. Un porcentaje bajo produce grupos mas amplios; un porcentaje alto produce grupos mas estrictos y puede dejar CABAS aisladas.
+
+Este modo esta disponible por consola con:
+
+```bash
+HF_HUB_DISABLE_XET=1 HF_HOME=.cache/huggingface .venv/bin/python src/cabas_afinidad_demo.py --mode threshold --tolerance 60
+```
+
+### 5.6 Interfaz de usuario
+
+Se agrego una interfaz de usuario en `src/app.py` usando Streamlit. La interfaz permite:
+
+- cargar un archivo CSV de entrada;
+- usar el dataset de ejemplo si no se carga archivo;
+- elegir entre agrupacion automatica y agrupacion definiendo tolerancia;
+- ajustar el porcentaje de afinidad mediante un slider;
+- ejecutar la agrupacion con un boton;
+- visualizar grupos, definiciones y CABAS incluidas;
+- ver la afinidad interna de cada grupo mediante una matriz interactiva;
+- descargar el CSV de resultados y la matriz de afinidades.
+
+La matriz interactiva permite pasar el cursor sobre una celda para ver la CABA origen, la CABA comparada y el porcentaje de afinidad entre ambas.
+
+### 5.7 Respaldo local
 
 Si BERTopic no esta instalado, o si falla por dependencias del entorno, el script ejecuta automaticamente un respaldo con:
 
@@ -108,26 +140,28 @@ Tambien se puede forzar con:
 
 Este respaldo no reemplaza la exigencia metodologica de BERTopic, pero permite validar la estructura de datos, salidas y documentacion en equipos donde aun no se instalaron las librerias finales.
 
-### 5.6 Nombramiento de grupos
-
-Despues del agrupamiento, el script extrae terminos representativos por grupo usando TF-IDF. Luego aplica reglas interpretables para proponer nombres como:
-
-- Territorio, geotecnologias y ciudades inteligentes.
-- Computacion, datos e inteligencia artificial aplicada.
-- Energia, potencia y transicion sostenible.
-- Gestion de organizaciones, operaciones y proyectos.
-- Sistemas electronicos, conectividad y automatizacion.
-- Sostenibilidad, ambiente y sociedad.
-- Productos, materiales y procesos industriales.
-
-Estas etiquetas se pueden ajustar con criterio experto antes de una presentacion institucional.
-
-### 5.7 Generacion de salidas
+### 5.8 Generacion de salidas
 
 El programa genera:
 
-- `outputs/agrupacion_cabas.csv`: tabla final con grupo, nombre, definicion y terminos.
+- `outputs/agrupacion_cabas.csv`: tabla final con identificador de grupo, definicion, terminos y afinidad promedio interna.
+- `outputs/agrupacion_cabas_afinidades.csv`: matriz porcentual de afinidad entre CABAS.
 - `outputs/resumen_agrupacion.md`: reporte automatico de los grupos.
+
+### 5.9 Contenedorizacion
+
+El proyecto incluye una imagen Docker autocontenida basada en Python 3.12. La
+imagen instala PyTorch en su variante CPU, las dependencias de
+`requirements.txt` y el modelo
+`paraphrase-multilingual-MiniLM-L12-v2`.
+
+El modelo se descarga durante la construccion de la imagen y la ejecucion se
+configura en modo offline. De esta manera, la maquina destino solo necesita
+Docker y no requiere instalar Python, BERTopic, Sentence Transformers o
+Streamlit.
+
+La aplicacion se ejecuta con un usuario sin privilegios, expone el puerto 8501
+y cuenta con una comprobacion de salud HTTP.
 
 ## 6. Verificacion realizada
 
@@ -140,10 +174,13 @@ En el entorno actual se verifico que:
 - Imports verificados: `bertopic`, `sentence_transformers`, `hdbscan`, `umap`, `torch`, `pandas`, `numpy` y `scikit-learn`.
 - Modelo `paraphrase-multilingual-MiniLM-L12-v2` descargado en cache local del proyecto con `HF_HOME=.cache/huggingface`.
 - Ejecucion completa de la demo con metodo `BERTopic + SentenceTransformer`.
+- Nueva modalidad por tolerancia disponible mediante `--mode threshold --tolerance`.
+- Interfaz Streamlit agregada en `src/app.py`.
 
 La ejecucion genero los archivos:
 
 - `outputs/agrupacion_cabas.csv`
+- `outputs/agrupacion_cabas_afinidades.csv`
 - `outputs/resumen_agrupacion.md`
 
 Tambien se mantiene el modo de respaldo para ejecutar la demo en equipos donde todavia no se hayan instalado BERTopic o el modelo de Sentence Transformers.
@@ -165,6 +202,26 @@ Ejecucion con BERTopic:
 HF_HUB_DISABLE_XET=1 HF_HOME=.cache/huggingface .venv/bin/python src/cabas_afinidad_demo.py
 ```
 
+Ejecucion con porcentaje de afinidad:
+
+```bash
+HF_HUB_DISABLE_XET=1 HF_HOME=.cache/huggingface .venv/bin/python src/cabas_afinidad_demo.py --mode threshold --tolerance 60
+```
+
+Ejecucion de la interfaz:
+
+```bash
+HF_HUB_DISABLE_XET=1 HF_HOME=.cache/huggingface .venv/bin/streamlit run src/app.py
+```
+
+Ejecucion con Docker:
+
+```bash
+docker compose up --build -d
+```
+
+La interfaz queda disponible en `http://localhost:8501`.
+
 Ejecucion de validacion sin BERTopic:
 
 ```bash
@@ -173,15 +230,7 @@ Ejecucion de validacion sin BERTopic:
 
 ## 8. Resultado de la ejecucion con BERTopic
 
-La ultima ejecucion se realizo con `BERTopic + SentenceTransformer`. El archivo `outputs/resumen_agrupacion.md` reporto los siguientes grupos:
-
-- Grupo -1: CABAS sin grupo estable.
-- Grupo 0: Gestion de organizaciones, operaciones y proyectos.
-- Grupo 1: Computacion, datos e inteligencia artificial aplicada.
-- Grupo 2: Territorio, geotecnologias y ciudades inteligentes.
-- Grupo 3: Sistemas electronicos, conectividad y automatizacion.
-- Grupo 4: Sistemas electronicos, conectividad y automatizacion.
-- Grupo 5: Energia, ambiente y sostenibilidad socio-tecnica.
+La ultima ejecucion se realizo con `BERTopic + SentenceTransformer`. Los grupos se identifican exclusivamente mediante el valor numerico `grupo_id`; el sistema ya no genera nombres tematicos para ellos.
 
 El coeficiente silhouette calculado sobre los textos fue `0.008`. Este valor debe interpretarse con cautela porque el dataset es pequeno y las CABAS son deliberadamente transversales; el objetivo principal de la demo es mostrar el flujo metodologico y producir una primera agrupacion interpretable, no cerrar una clasificacion institucional definitiva.
 
@@ -192,7 +241,7 @@ BERTopic marco algunas CABAS como `-1`, que corresponde a elementos sin grupo es
 Los grupos generados deben leerse como aproximaciones tecnicas. Para una sustentacion formal de Escuela, se recomienda una fase posterior con:
 
 - Validacion de expertos academicos.
-- Ajuste de nombres de grupos y posible fusion de grupos con etiquetas repetidas.
+- Revision de la composicion de los grupos y posibles fusiones o separaciones.
 - Revision de coherencia frente a productividad docente.
 - Incorporacion de proyectos, publicaciones, semilleros, laboratorios y lineas de investigacion.
 - Comparacion contra las funciones de investigacion-creacion, innovacion, docencia, extension y proyeccion social.
@@ -203,7 +252,13 @@ Los grupos generados deben leerse como aproximaciones tecnicas. Para una sustent
 - `requirements.txt`: dependencias.
 - `data/cabas.csv`: datos de ejemplo.
 - `src/cabas_afinidad_demo.py`: implementacion.
+- `src/app.py`: interfaz de usuario.
+- `Dockerfile`: definicion de la imagen autocontenida.
+- `compose.yaml`: ejecucion local mediante Docker Compose.
+- `.dockerignore`: exclusion del entorno virtual, cache y salidas del contexto.
+- `README.Docker.md`: guia de construccion, ejecucion y distribucion.
 - `outputs/agrupacion_cabas.csv`: se genera al ejecutar.
+- `outputs/agrupacion_cabas_afinidades.csv`: se genera al ejecutar.
 - `outputs/resumen_agrupacion.md`: se genera al ejecutar.
 - `.venv`: entorno virtual local con las dependencias instaladas.
 - `.cache/huggingface`: cache local usada para el modelo semantico.
@@ -211,7 +266,7 @@ Los grupos generados deben leerse como aproximaciones tecnicas. Para una sustent
 ## 11. Limitaciones
 
 - El dataset es demostrativo, no definitivo.
-- Los nombres de grupos son propuestas automatizadas y deben revisarse institucionalmente.
 - La calidad mejora si cada CABA tiene descripciones mas extensas, productividad academica asociada y palabras clave normalizadas.
 - BERTopic y Sentence Transformers requieren descargas grandes, especialmente por PyTorch.
 - La ejecucion con BERTopic puede producir grupos `-1` cuando HDBSCAN no encuentra densidad suficiente para asignar todos los documentos.
+- El porcentaje de tolerancia debe revisarse con criterio experto: no existe un umbral universal valido para todos los conjuntos de CABAS.

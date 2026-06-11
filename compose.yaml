@@ -1,0 +1,9 @@
+services:
+  cabas-afines:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: demo-cabas-afines:latest
+    ports:
+      - "8501:8501"
+    restart: unless-stopped

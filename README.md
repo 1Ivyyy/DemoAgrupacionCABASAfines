@@ -1,6 +1,6 @@
 # Demo CABAS Afines
 
-Demo en Python para agrupar Comunidades Academicas Basicas (CABAS) por afinidad tematica y proponer un nombre/definicion para cada grupo. El campo institucional usado como referencia es:
+Demo en Python para agrupar Comunidades Academicas Basicas (CABAS) por afinidad tematica y describir cada grupo mediante sus terminos representativos. El campo institucional usado como referencia es:
 
 > Ingenieria aplicada, tecnologias convergentes y sostenibilidad de organizaciones y territorios.
 
@@ -29,10 +29,31 @@ La demo usa el modelo `paraphrase-multilingual-MiniLM-L12-v2` de Sentence Transf
 
 ## Ejecucion
 
+Con Docker, sin instalar Python ni dependencias:
+
+```bash
+docker compose up --build -d
+```
+
+La interfaz queda disponible en `http://localhost:8501`. La guia completa esta
+en `README.Docker.md`.
+
+Interfaz grafica:
+
+```bash
+HF_HUB_DISABLE_XET=1 HF_HOME=.cache/huggingface .venv/bin/streamlit run src/app.py
+```
+
 Con BERTopic + Sentence Transformer:
 
 ```bash
 HF_HUB_DISABLE_XET=1 HF_HOME=.cache/huggingface .venv/bin/python src/cabas_afinidad_demo.py
+```
+
+Con porcentaje de afinidad/tolerancia desde consola:
+
+```bash
+HF_HUB_DISABLE_XET=1 HF_HOME=.cache/huggingface .venv/bin/python src/cabas_afinidad_demo.py --mode threshold --tolerance 60
 ```
 
 Para validar la demo sin usar BERTopic, forzando el respaldo local de afinidad tematica por palabras semilla:
@@ -45,10 +66,18 @@ Para validar la demo sin usar BERTopic, forzando el respaldo local de afinidad t
 
 La ejecucion produce:
 
-- `outputs/agrupacion_cabas.csv`: cada CABA con su grupo, nombre de grupo, definicion y terminos representativos.
+- `outputs/agrupacion_cabas.csv`: cada CABA con su identificador de grupo, definicion, terminos representativos y afinidad promedio interna.
+- `outputs/agrupacion_cabas_afinidades.csv`: matriz de afinidad porcentual entre CABAS.
 - `outputs/resumen_agrupacion.md`: reporte corto generado automaticamente con los grupos encontrados.
 
 La ultima ejecucion confirmada uso `BERTopic + SentenceTransformer`.
+
+## Modos de agrupacion
+
+- Agrupacion automatica: usa BERTopic + Sentence Transformer para detectar grupos semanticos.
+- Agrupacion definiendo tolerancia: usa embeddings semanticos y agrupa CABAS conectadas por una afinidad igual o superior al porcentaje elegido.
+
+En la interfaz grafica se puede cargar un CSV, elegir el modo, ajustar el porcentaje con un slider y revisar la afinidad interna de cada grupo en una matriz interactiva.
 
 ## Adaptacion a datos reales
 

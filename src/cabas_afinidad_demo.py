@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import silhouette_score
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -27,10 +28,19 @@ CAMPO_ESCUELA = (
 @dataclass(frozen=True)
 class ClusterSummary:
     cluster_id: int
-    nombre: str
     definicion: str
     terminos: list[str]
     cabas: list[str]
+
+
+@dataclass(frozen=True)
+class AnalysisResult:
+    method: str
+    labels: list[int]
+    summaries: list[ClusterSummary]
+    table: pd.DataFrame
+    score: float | None
+    affinity_matrix: pd.DataFrame
 
 
 def normalize_text(value: str) -> str:
@@ -98,9 +108,8 @@ def spanish_stop_words() -> list[str]:
     ]
 
 
-THEMATIC_GROUPS = [
+THEMATIC_KEYWORD_GROUPS = [
     {
-        "label": "Fundamentos, productos y procesos de ingenieria",
         "keywords": [
             "matematica",
             "fisica",
@@ -114,7 +123,6 @@ THEMATIC_GROUPS = [
         ],
     },
     {
-        "label": "Gestion de organizaciones, operaciones y proyectos",
         "keywords": [
             "organizaciones",
             "proyectos",
@@ -129,7 +137,6 @@ THEMATIC_GROUPS = [
         ],
     },
     {
-        "label": "Territorio, geotecnologias y ciudades inteligentes",
         "keywords": [
             "catastro",
             "territorio",
@@ -145,7 +152,6 @@ THEMATIC_GROUPS = [
         ],
     },
     {
-        "label": "Computacion, datos e inteligencia artificial aplicada",
         "keywords": [
             "ia",
             "computacion",
@@ -162,7 +168,6 @@ THEMATIC_GROUPS = [
         ],
     },
     {
-        "label": "Sistemas electronicos, conectividad y automatizacion",
         "keywords": [
             "electronica",
             "control",
@@ -178,7 +183,6 @@ THEMATIC_GROUPS = [
         ],
     },
     {
-        "label": "Energia, ambiente y sostenibilidad socio-tecnica",
         "keywords": [
             "energia",
             "potencia",
@@ -198,7 +202,6 @@ THEMATIC_GROUPS = [
         ],
     },
     {
-        "label": "Bioingenieria y tecnologias para la salud",
         "keywords": [
             "bioingenieria",
             "salud",
@@ -211,19 +214,7 @@ THEMATIC_GROUPS = [
 ]
 
 
-def label_from_terms(terms: list[str]) -> str:
-    joined = " ".join(terms).lower()
-    best_label = "Convergencia aplicada de ingenieria y tecnologia"
-    best_score = 0
-    for theme in THEMATIC_GROUPS:
-        score = sum(1 for keyword in theme["keywords"] if keyword in joined)
-        if score > best_score:
-            best_score = score
-            best_label = str(theme["label"])
-    return best_label
-
-
-def definition_from_terms(label: str, terms: list[str]) -> str:
+def definition_from_terms(terms: list[str]) -> str:
     key_terms = ", ".join(terms[:4]) if terms else "afinidad tematica"
     return (
         f"Agrupa CABAS con afinidad en {key_terms}. Su aporte al campo "
@@ -232,14 +223,37 @@ def definition_from_terms(label: str, terms: list[str]) -> str:
     )
 
 
-def run_bertopic(documents: list[str]) -> tuple[str, list[int], object]:
+def load_embedding_model():
+    from sentence_transformers import SentenceTransformer
+
+    model_name = "paraphrase-multilingual-MiniLM-L12-v2"
+    try:
+        return SentenceTransformer(model_name, local_files_only=True)
+    except Exception:
+        return SentenceTransformer(model_name)
+
+
+def encode_documents(documents: list[str], embedding_model=None) -> np.ndarray:
+    model = embedding_model or load_embedding_model()
+    return np.asarray(model.encode(documents, show_progress_bar=False))
+
+
+def build_affinity_matrix(names: list[str], embeddings: np.ndarray) -> pd.DataFrame:
+    similarity = cosine_similarity(embeddings)
+    percentages = np.clip(similarity * 100, 0, 100)
+    return pd.DataFrame(percentages, index=names, columns=names).round(2)
+
+
+def run_bertopic(
+    documents: list[str], embeddings: np.ndarray | None = None, embedding_model=None
+) -> tuple[str, list[int], object, np.ndarray]:
     from bertopic import BERTopic
     from hdbscan import HDBSCAN
-    from sentence_transformers import SentenceTransformer
     from umap import UMAP
 
-    embedding_model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
-    embeddings = embedding_model.encode(documents, show_progress_bar=False)
+    embedding_model = embedding_model or load_embedding_model()
+    if embeddings is None:
+        embeddings = encode_documents(documents, embedding_model)
 
     n_neighbors = min(10, max(2, len(documents) - 1))
     umap_model = UMAP(
@@ -265,7 +279,7 @@ def run_bertopic(documents: list[str]) -> tuple[str, list[int], object]:
         verbose=False,
     )
     topics, _ = topic_model.fit_transform(documents, embeddings)
-    return "BERTopic + SentenceTransformer", [int(topic) for topic in topics], topic_model
+    return "BERTopic + SentenceTransformer", [int(topic) for topic in topics], topic_model, embeddings
 
 
 def run_fallback(documents: list[str]) -> tuple[str, list[int], None]:
@@ -274,10 +288,40 @@ def run_fallback(documents: list[str]) -> tuple[str, list[int], None]:
         text = document.lower()
         scores = [
             sum(1 for keyword in theme["keywords"] if keyword_matches(text, keyword))
-            for theme in THEMATIC_GROUPS
+            for theme in THEMATIC_KEYWORD_GROUPS
         ]
         labels.append(int(np.argmax(scores)))
     return "Respaldo local de afinidad tematica por palabras semilla", labels, None
+
+
+def run_threshold_grouping(
+    documents: list[str], tolerance_percent: float, embedding_model=None
+) -> tuple[str, list[int], np.ndarray]:
+    if not 0 <= tolerance_percent <= 100:
+        raise ValueError("El porcentaje de afinidad debe estar entre 0 y 100.")
+
+    embeddings = encode_documents(documents, embedding_model)
+    similarity = cosine_similarity(embeddings) * 100
+    n_docs = len(documents)
+    labels = [-1] * n_docs
+    current_label = 0
+
+    for start in range(n_docs):
+        if labels[start] != -1:
+            continue
+        stack = [start]
+        labels[start] = current_label
+        while stack:
+            current = stack.pop()
+            neighbors = np.where(similarity[current] >= tolerance_percent)[0]
+            for neighbor in neighbors:
+                if labels[int(neighbor)] == -1:
+                    labels[int(neighbor)] = current_label
+                    stack.append(int(neighbor))
+        current_label += 1
+
+    method = f"Agrupacion por tolerancia semantica >= {tolerance_percent:.0f}%"
+    return method, labels, embeddings
 
 
 def keyword_matches(text: str, keyword: str) -> bool:
@@ -293,16 +337,13 @@ def build_cluster_summaries(
     for cluster_id in sorted(set(labels)):
         if cluster_id == -1:
             terms = ["sin asignacion estable"]
-            nombre = "CABAS sin grupo estable"
         else:
             terms = terms_by_cluster.get(int(cluster_id), [])
-            nombre = label_from_terms(terms)
         cabas = df.loc[np.array(labels) == cluster_id, "nombre"].tolist()
         summaries.append(
             ClusterSummary(
                 cluster_id=int(cluster_id),
-                nombre=nombre,
-                definicion=definition_from_terms(nombre, terms),
+                definicion=definition_from_terms(terms),
                 terminos=terms,
                 cabas=cabas,
             )
@@ -311,17 +352,71 @@ def build_cluster_summaries(
 
 
 def attach_cluster_metadata(
-    df: pd.DataFrame, summaries: list[ClusterSummary], labels: list[int]
+    df: pd.DataFrame,
+    summaries: list[ClusterSummary],
+    labels: list[int],
+    affinity_matrix: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     by_id = {summary.cluster_id: summary for summary in summaries}
     output = df.copy()
     output["grupo_id"] = labels
-    output["grupo_nombre"] = [by_id[label].nombre for label in labels]
     output["grupo_definicion"] = [by_id[label].definicion for label in labels]
     output["terminos_representativos"] = [
         ", ".join(by_id[label].terminos) for label in labels
     ]
+    if affinity_matrix is not None:
+        output["afinidad_promedio_grupo"] = average_group_affinities(
+            output["nombre"].tolist(), labels, affinity_matrix
+        )
     return output
+
+
+def average_group_affinities(
+    names: list[str], labels: list[int], affinity_matrix: pd.DataFrame
+) -> list[float | None]:
+    averages: list[float | None] = []
+    for name, label in zip(names, labels):
+        group_names = [candidate for candidate, candidate_label in zip(names, labels) if candidate_label == label]
+        peers = [candidate for candidate in group_names if candidate != name]
+        if not peers:
+            averages.append(None)
+            continue
+        averages.append(round(float(affinity_matrix.loc[name, peers].mean()), 2))
+    return averages
+
+
+def analyze_cabas(
+    df: pd.DataFrame,
+    mode: str = "automatic",
+    tolerance_percent: float = 60,
+    force_fallback: bool = False,
+) -> AnalysisResult:
+    documents = build_documents(df)
+    names = df["nombre"].tolist()
+    embeddings: np.ndarray | None = None
+
+    if mode == "threshold":
+        method, labels, embeddings = run_threshold_grouping(documents, tolerance_percent)
+    elif mode == "automatic":
+        if force_fallback:
+            method, labels, _ = run_fallback(documents)
+        else:
+            try:
+                method, labels, _, embeddings = run_bertopic(documents)
+            except Exception as exc:
+                method, labels, _ = run_fallback(documents)
+                method = f"{method} (BERTopic no disponible: {exc.__class__.__name__})"
+    else:
+        raise ValueError("Modo no valido. Use 'automatic' o 'threshold'.")
+
+    if embeddings is None:
+        embeddings = encode_documents(documents)
+
+    affinity_matrix = build_affinity_matrix(names, embeddings)
+    summaries = build_cluster_summaries(df, documents, labels)
+    table = attach_cluster_metadata(df, summaries, labels, affinity_matrix)
+    score = silhouette(documents, labels)
+    return AnalysisResult(method, labels, summaries, table, score, affinity_matrix)
 
 
 def silhouette(documents: list[str], labels: list[int]) -> float | None:
@@ -340,6 +435,7 @@ def write_markdown_report(
     output_file: Path,
     summaries: list[ClusterSummary],
     score: float | None,
+    result_table: pd.DataFrame | None = None,
 ) -> None:
     lines = [
         "# Resumen de agrupacion de CABAS",
@@ -359,19 +455,36 @@ def write_markdown_report(
     for summary in summaries:
         lines.extend(
             [
-                f"### Grupo {summary.cluster_id}: {summary.nombre}",
+                f"### Grupo {summary.cluster_id}",
                 "",
                 summary.definicion,
                 "",
                 f"Terminos representativos: {', '.join(summary.terminos)}",
                 "",
                 "CABAS incluidas:",
-                *[f"- {caba}" for caba in summary.cabas],
+                *format_cabas_for_report(summary, result_table),
                 "",
             ]
         )
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines), encoding="utf-8")
+
+
+def format_cabas_for_report(
+    summary: ClusterSummary, result_table: pd.DataFrame | None
+) -> list[str]:
+    if result_table is None or "afinidad_promedio_grupo" not in result_table.columns:
+        return [f"- {caba}" for caba in summary.cabas]
+
+    rows = []
+    for caba in summary.cabas:
+        match = result_table.loc[result_table["nombre"] == caba, "afinidad_promedio_grupo"]
+        value = match.iloc[0] if not match.empty else None
+        if pd.isna(value):
+            rows.append(f"- {caba} (afinidad interna: no aplica)")
+        else:
+            rows.append(f"- {caba} (afinidad interna promedio: {float(value):.2f}%)")
+    return rows
 
 
 def main() -> None:
@@ -386,40 +499,54 @@ def main() -> None:
         action="store_true",
         help="Usa el agrupamiento local de respaldo aunque BERTopic este instalado.",
     )
+    parser.add_argument(
+        "--mode",
+        choices=["automatic", "threshold"],
+        default="automatic",
+        help="automatic usa BERTopic; threshold agrupa por porcentaje minimo de afinidad.",
+    )
+    parser.add_argument(
+        "--tolerance",
+        type=float,
+        default=60,
+        help="Porcentaje minimo de afinidad para --mode threshold.",
+    )
     args = parser.parse_args()
 
     df = pd.read_csv(args.input)
-    documents = build_documents(df)
-
-    if args.force_fallback:
-        method, labels, _ = run_fallback(documents)
-    else:
-        try:
-            method, labels, _ = run_bertopic(documents)
-        except Exception as exc:
-            method, labels, _ = run_fallback(documents)
-            method = f"{method} (BERTopic no disponible: {exc.__class__.__name__})"
-
-    summaries = build_cluster_summaries(df, documents, labels)
-    result = attach_cluster_metadata(df, summaries, labels)
+    analysis = analyze_cabas(
+        df,
+        mode=args.mode,
+        tolerance_percent=args.tolerance,
+        force_fallback=args.force_fallback,
+    )
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    result.to_csv(args.output, index=False)
+    analysis.table.to_csv(args.output, index=False)
 
-    score = silhouette(documents, labels)
-    write_markdown_report(args.report, method, args.input, args.output, summaries, score)
+    affinity_output = args.output.with_name(f"{args.output.stem}_afinidades.csv")
+    analysis.affinity_matrix.to_csv(affinity_output)
+    write_markdown_report(
+        args.report,
+        analysis.method,
+        args.input,
+        args.output,
+        analysis.summaries,
+        analysis.score,
+        analysis.table,
+    )
 
     payload = {
-        "metodo": method,
+        "metodo": analysis.method,
         "archivo_salida": str(args.output),
+        "archivo_afinidades": str(affinity_output),
         "reporte": str(args.report),
         "grupos": [
             {
                 "id": summary.cluster_id,
-                "nombre": summary.nombre,
                 "cantidad_cabas": len(summary.cabas),
             }
-            for summary in summaries
+            for summary in analysis.summaries
         ],
     }
     print(json.dumps(payload, ensure_ascii=False, indent=2))

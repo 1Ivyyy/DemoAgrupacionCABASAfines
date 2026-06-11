@@ -1,0 +1,16 @@
+,Ciencias basicas aplicadas a la ingenieria,Organizaciones y proyectos,Catastro gestion territorial y avaluos,Geodesia y geotecnologias aplicadas al territorio,Electronica control y automatizacion,Redes inteligentes telecomunicaciones y seguridad informatica,Ciencias de sistemas cibernetica IA y computacion,Ingenieria de software ciencia de datos y programacion,Gestion de TI y transformacion digital,Sistemas electricos de energia y potencia,Ciencia de datos para toma de decisiones en sistemas organizacionales,Investigacion de operaciones en sistemas organizacionales,Gestion de operaciones y cadenas de suministro,Ingenieria de productos materiales y procesos,Humanidades en ingenieria
+Ciencias basicas aplicadas a la ingenieria,100.0,37.96,37.44,32.93,51.58,37.21,64.01,57.53,41.92,45.04,39.74,53.62,40.13,54.74,58.58
+Organizaciones y proyectos,37.96,100.0,54.96,43.13,33.54,27.35,34.0,49.67,56.52,33.47,56.73,55.85,50.2,45.9,44.64
+Catastro gestion territorial y avaluos,37.44,54.96,100.0,50.23,39.86,37.93,45.66,42.22,47.07,45.45,47.55,50.15,49.8,39.05,38.42
+Geodesia y geotecnologias aplicadas al territorio,32.93,43.13,50.23,100.0,27.3,39.35,36.67,36.22,36.7,26.82,32.32,24.61,35.12,24.57,28.14
+Electronica control y automatizacion,51.58,33.54,39.86,27.3,100.0,51.87,66.11,47.73,55.27,53.37,47.16,54.33,51.56,51.6,49.01
+Redes inteligentes telecomunicaciones y seguridad informatica,37.21,27.35,37.93,39.35,51.87,100.0,58.41,39.26,53.51,60.73,37.59,27.33,43.19,30.68,53.06
+Ciencias de sistemas cibernetica IA y computacion,64.01,34.0,45.66,36.67,66.11,58.41,100.0,61.85,54.99,50.92,52.11,57.69,39.92,45.77,48.83
+Ingenieria de software ciencia de datos y programacion,57.53,49.67,42.22,36.22,47.73,39.26,61.85,100.0,53.76,35.03,66.5,49.1,41.83,49.3,49.15
+Gestion de TI y transformacion digital,41.92,56.52,47.07,36.7,55.27,53.51,54.99,53.76,100.0,52.1,52.77,42.84,46.25,43.83,52.4
+Sistemas electricos de energia y potencia,45.04,33.47,45.45,26.82,53.37,60.73,50.92,35.03,52.1,100.0,37.19,43.79,59.51,48.97,50.07
+Ciencia de datos para toma de decisiones en sistemas organizacionales,39.74,56.73,47.55,32.32,47.16,37.59,52.11,66.5,52.77,37.19,100.0,56.24,39.93,41.65,38.54
+Investigacion de operaciones en sistemas organizacionales,53.62,55.85,50.15,24.61,54.33,27.33,57.69,49.1,42.84,43.79,56.24,100.0,59.86,51.02,31.1
+Gestion de operaciones y cadenas de suministro,40.13,50.2,49.8,35.12,51.56,43.19,39.92,41.83,46.25,59.51,39.93,59.86,100.0,61.24,43.6
+Ingenieria de productos materiales y procesos,54.74,45.9,39.05,24.57,51.6,30.68,45.77,49.3,43.83,48.97,41.65,51.02,61.24,100.0,58.35
+Humanidades en ingenieria,58.58,44.64,38.42,28.14,49.01,53.06,48.83,49.15,52.4,50.07,38.54,31.1,43.6,58.35,100.0
