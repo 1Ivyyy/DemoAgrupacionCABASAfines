@@ -20,13 +20,23 @@ Por eso la demo no solo agrupa por palabras parecidas. Tambien redacta cada grup
 
 ## 3. Insumos creados
 
-Se creo el archivo `data/cabas.csv` con 20 CABAS de ejemplo. Incluye las 15 CABAS listadas en `agents.md` y 5 adicionales para dar mas densidad tematica:
+Se creo el archivo `data/cabas.csv` con 20 CABAS de ejemplo. Incluye las 15 CABAS listadas en `agents.md`:
 
-- Energias renovables y sostenibilidad energetica.
-- Tecnologias ambientales y gestion del recurso hidrico.
-- Analitica territorial y ciudades inteligentes.
-- Ingenieria de seguridad y resiliencia de infraestructura.
-- Bioingenieria y tecnologias para la salud.
+1. Ciencias básicas aplicadas a la ingeniería
+2. Organizaciones y proyectos
+3. Catastro, Gestión Territorial y Avalúos
+4. Geodesia y geotecnologías aplicadas al territorio
+5. Electrónica, control y automatización
+6. Redes inteligentes, telecomunicaciones y seguridad informática
+7. Ciencias de sistemas (Cibernética e IA) y computación
+8. Ingeniería de software, ciencia de datos y programación de computadores
+9. Gestión de TI y transformación digital
+10. Sistemas eléctricos de energía y potencia
+11. Ciencia de datos para la toma de decisiones en sistemas organizacionales
+12. Investigación de operaciones en sistemas organizacionales
+13. Gestión de operaciones y cadenas de suministro
+14. Ingeniería de productos, materiales y procesos
+15. Humanidades en ingeniería
 
 Cada fila contiene:
 
