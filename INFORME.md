@@ -6,7 +6,7 @@ El objetivo de la demo es identificar afinidades entre CABAS y agruparlas en con
 
 **Ingenieria aplicada, tecnologias convergentes y sostenibilidad de organizaciones y territorios.**
 
-La demo toma una lista de CABAS, construye una representacion textual de cada una, calcula similitud semantica y asigna cada CABA a un grupo. Luego genera una definicion basada en los terminos representativos de cada agrupacion.
+La demo toma una lista de CABAS, construye una representacion textual de cada una, calcula similitud semantica y asigna cada CABA a un grupo. Luego presenta los terminos representativos de cada agrupacion.
 
 ## 2. Contexto estatutario usado
 
@@ -124,7 +124,7 @@ Se agrego una interfaz de usuario en `src/app.py` usando Streamlit. La interfaz 
 - elegir entre agrupacion automatica y agrupacion definiendo tolerancia;
 - ajustar el porcentaje de afinidad mediante un slider;
 - ejecutar la agrupacion con un boton;
-- visualizar grupos, definiciones y CABAS incluidas;
+- visualizar grupos, terminos representativos y CABAS incluidas;
 - ver la afinidad interna de cada grupo mediante una matriz interactiva;
 - descargar el CSV de resultados y la matriz de afinidades.
 
@@ -150,7 +150,7 @@ Este respaldo no reemplaza la exigencia metodologica de BERTopic, pero permite v
 
 El programa genera:
 
-- `outputs/agrupacion_cabas.csv`: tabla final con identificador de grupo, definicion, terminos y afinidad promedio interna.
+- `outputs/agrupacion_cabas.csv`: tabla final con identificador de grupo, terminos y afinidad promedio interna.
 - `outputs/agrupacion_cabas_afinidades.csv`: matriz porcentual de afinidad entre CABAS.
 - `outputs/resumen_agrupacion.md`: reporte automatico de los grupos.
 

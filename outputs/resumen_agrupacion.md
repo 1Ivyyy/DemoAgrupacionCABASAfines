@@ -13,8 +13,6 @@ Campo de conocimiento-saber objetivo: **Ingenieria aplicada, tecnologias converg
 
 ### Grupo 0
 
-Agrupa CABAS con afinidad en sistemas, automatizacion, electronica, control. Su aporte al campo 'Ingenieria aplicada, tecnologias convergentes y sostenibilidad de organizaciones y territorios' consiste en integrar capacidades academicas para investigacion-creacion, docencia, innovacion y proyeccion social.
-
 Terminos representativos: sistemas, automatizacion, electronica, control, electronica control, control automatizacion
 
 CABAS incluidas:
@@ -27,8 +25,6 @@ CABAS incluidas:
 
 ### Grupo 1
 
-Agrupa CABAS con afinidad en ingenieria, humanidades ingenieria, humanidades, ciencias basicas. Su aporte al campo 'Ingenieria aplicada, tecnologias convergentes y sostenibilidad de organizaciones y territorios' consiste en integrar capacidades academicas para investigacion-creacion, docencia, innovacion y proyeccion social.
-
 Terminos representativos: ingenieria, humanidades ingenieria, humanidades, ciencias basicas, basicas, aplicadas ingenieria
 
 CABAS incluidas:
@@ -38,8 +34,6 @@ CABAS incluidas:
 
 ### Grupo 2
 
-Agrupa CABAS con afinidad en proyectos, organizaciones, organizaciones proyectos, territorial. Su aporte al campo 'Ingenieria aplicada, tecnologias convergentes y sostenibilidad de organizaciones y territorios' consiste en integrar capacidades academicas para investigacion-creacion, docencia, innovacion y proyeccion social.
-
 Terminos representativos: proyectos, organizaciones, organizaciones proyectos, territorial, territorial avaluos, catastro gestion
 
 CABAS incluidas:
@@ -48,8 +42,6 @@ CABAS incluidas:
 - Geodesia y geotecnologias aplicadas al territorio (afinidad interna promedio: 42.66%)
 
 ### Grupo 3
-
-Agrupa CABAS con afinidad en operaciones, organizacionales, sistemas organizacionales, sistemas. Su aporte al campo 'Ingenieria aplicada, tecnologias convergentes y sostenibilidad de organizaciones y territorios' consiste en integrar capacidades academicas para investigacion-creacion, docencia, innovacion y proyeccion social.
 
 Terminos representativos: operaciones, organizacionales, sistemas organizacionales, sistemas, investigacion operaciones, operaciones sistemas
 

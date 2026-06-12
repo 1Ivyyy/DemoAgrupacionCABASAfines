@@ -35,8 +35,7 @@ def csv_download(df: pd.DataFrame) -> bytes:
 def render_group(summary, result_table: pd.DataFrame, affinity_matrix: pd.DataFrame) -> None:
     with st.container(border=True):
         st.subheader(f"Grupo {summary.cluster_id}")
-        st.write(summary.definicion)
-        st.caption(f"Terminos representativos: {', '.join(summary.terminos)}")
+        st.write(f"Terminos representativos: {', '.join(summary.terminos)}")
 
         group_rows = result_table[result_table["grupo_id"] == summary.cluster_id].copy()
         visible_cols = ["nombre", "afinidad_promedio_grupo"]

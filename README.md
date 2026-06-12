@@ -66,7 +66,7 @@ Para validar la demo sin usar BERTopic, forzando el respaldo local de afinidad t
 
 La ejecucion produce:
 
-- `outputs/agrupacion_cabas.csv`: cada CABA con su identificador de grupo, definicion, terminos representativos y afinidad promedio interna.
+- `outputs/agrupacion_cabas.csv`: cada CABA con su identificador de grupo, terminos representativos y afinidad promedio interna.
 - `outputs/agrupacion_cabas_afinidades.csv`: matriz de afinidad porcentual entre CABAS.
 - `outputs/resumen_agrupacion.md`: reporte corto generado automaticamente con los grupos encontrados.
 

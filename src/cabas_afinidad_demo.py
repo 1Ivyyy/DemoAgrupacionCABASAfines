@@ -28,7 +28,6 @@ CAMPO_ESCUELA = (
 @dataclass(frozen=True)
 class ClusterSummary:
     cluster_id: int
-    definicion: str
     terminos: list[str]
     cabas: list[str]
 
@@ -218,15 +217,6 @@ THEMATIC_KEYWORD_GROUPS = [
 ]
 
 
-def definition_from_terms(terms: list[str]) -> str:
-    key_terms = ", ".join(terms[:4]) if terms else "afinidad tematica"
-    return (
-        f"Agrupa CABAS con afinidad en {key_terms}. Su aporte al campo "
-        f"'{CAMPO_ESCUELA}' consiste en integrar capacidades academicas para "
-        "investigacion-creacion, docencia, innovacion y proyeccion social."
-    )
-
-
 def load_embedding_model():
     from sentence_transformers import SentenceTransformer
 
@@ -347,7 +337,6 @@ def build_cluster_summaries(
         summaries.append(
             ClusterSummary(
                 cluster_id=int(cluster_id),
-                definicion=definition_from_terms(terms),
                 terminos=terms,
                 cabas=cabas,
             )
@@ -364,7 +353,6 @@ def attach_cluster_metadata(
     by_id = {summary.cluster_id: summary for summary in summaries}
     output = df.copy()
     output["grupo_id"] = labels
-    output["grupo_definicion"] = [by_id[label].definicion for label in labels]
     output["terminos_representativos"] = [
         ", ".join(by_id[label].terminos) for label in labels
     ]
@@ -460,8 +448,6 @@ def write_markdown_report(
         lines.extend(
             [
                 f"### Grupo {summary.cluster_id}",
-                "",
-                summary.definicion,
                 "",
                 f"Terminos representativos: {', '.join(summary.terminos)}",
                 "",
