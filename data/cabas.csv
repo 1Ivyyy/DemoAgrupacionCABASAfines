@@ -1,16 +1,16 @@
-id,nombre,descripcion,palabras_clave
-1,Ciencias basicas aplicadas a la ingenieria,"Modelacion matematica, fisica aplicada, estadistica y fundamentos cientificos para resolver problemas de ingenieria.",matematicas; fisica; estadistica; modelacion; ingenieria
-2,Organizaciones y proyectos,"Gestion de organizaciones, formulacion, direccion y evaluacion de proyectos con enfoque estrategico y de valor publico.",organizaciones; proyectos; estrategia; gestion; evaluacion
-3,Catastro gestion territorial y avaluos,"Analisis del territorio, catastro multiproposito, valoracion, ordenamiento y administracion de informacion predial.",catastro; territorio; avaluos; predial; ordenamiento
-4,Geodesia y geotecnologias aplicadas al territorio,"Captura, procesamiento y analisis de informacion geoespacial mediante geodesia, sensores remotos, GNSS y SIG.",geodesia; geotecnologias; SIG; sensores remotos; territorio
-5,Electronica control y automatizacion,"Diseno de sistemas electronicos, control automatico, instrumentacion, robotica y automatizacion de procesos.",electronica; control; automatizacion; robotica; instrumentacion
-6,Redes inteligentes telecomunicaciones y seguridad informatica,"Infraestructura de redes, comunicaciones digitales, internet de las cosas, ciberseguridad y servicios conectados.",redes; telecomunicaciones; ciberseguridad; IoT; conectividad
-7,Ciencias de sistemas cibernetica IA y computacion,"Estudio de sistemas complejos, inteligencia artificial, computacion, simulacion y metodos ciberneticos.",IA; computacion; cibernetica; sistemas complejos; simulacion
-8,Ingenieria de software ciencia de datos y programacion,"Construccion de software, analitica, ciencia de datos, programacion y arquitecturas computacionales.",software; datos; programacion; analitica; arquitectura
-9,Gestion de TI y transformacion digital,"Gobierno de tecnologias de informacion, transformacion digital, arquitectura empresarial y gestion de servicios tecnologicos.",TI; transformacion digital; gobierno; servicios; arquitectura empresarial
-10,Sistemas electricos de energia y potencia,"Generacion, transmision, distribucion, calidad, mercados y estabilidad de sistemas electricos de potencia.",energia; potencia; redes electricas; estabilidad; distribucion
-11,Ciencia de datos para toma de decisiones en sistemas organizacionales,"Modelos de datos, aprendizaje automatico, inteligencia de negocios y analitica para decisiones organizacionales.",ciencia de datos; decisiones; organizacional; machine learning; BI
-12,Investigacion de operaciones en sistemas organizacionales,"Optimizacion, simulacion, teoria de colas, modelos estocasticos y soporte cuantitativo para la gestion.",optimizacion; simulacion; operaciones; estocastico; gestion
-13,Gestion de operaciones y cadenas de suministro,"Planeacion, logistica, abastecimiento, produccion, distribucion y sostenibilidad en cadenas de suministro.",operaciones; logistica; abastecimiento; produccion; suministro
-14,Ingenieria de productos materiales y procesos,"Diseno y mejora de productos, materiales, manufactura, procesos industriales y evaluacion del ciclo de vida.",producto; materiales; manufactura; procesos; ciclo de vida
-15,Humanidades en ingenieria,"Relacion entre tecnologia, sociedad, etica, comunicacion, sostenibilidad y formacion integral en ingenieria.",humanidades; etica; sociedad; sostenibilidad; comunicacion
+nombre
+Ciencias basicas aplicadas a la ingenieria
+Organizaciones y proyectos
+Catastro gestion territorial y avaluos
+Geodesia y geotecnologias aplicadas al territorio
+Electronica control y automatizacion
+Redes inteligentes telecomunicaciones y seguridad informatica
+Ciencias de sistemas cibernetica IA y computacion
+Ingenieria de software ciencia de datos y programacion
+Gestion de TI y transformacion digital
+Sistemas electricos de energia y potencia
+Ciencia de datos para toma de decisiones en sistemas organizacionales
+Investigacion de operaciones en sistemas organizacionales
+Gestion de operaciones y cadenas de suministro
+Ingenieria de productos materiales y procesos
+Humanidades en ingenieria

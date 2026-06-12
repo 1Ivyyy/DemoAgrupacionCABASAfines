@@ -6,7 +6,7 @@ Demo en Python para agrupar Comunidades Academicas Basicas (CABAS) por afinidad 
 
 ## Estructura
 
-- `data/cabas.csv`: dataset inicial de CABAS, descripciones y palabras clave.
+- `data/cabas.csv`: dataset inicial con los nombres de las CABAS.
 - `src/cabas_afinidad_demo.py`: script principal.
 - `outputs/`: resultados generados al ejecutar la demo.
 - `INFORME.md`: documentacion metodologica y registro del proceso.
@@ -81,11 +81,10 @@ En la interfaz grafica se puede cargar un CSV, elegir el modo, ajustar el porcen
 
 ## Adaptacion a datos reales
 
-Para usar CABAS reales, reemplace `data/cabas.csv` conservando estas columnas:
+Para usar CABAS reales, reemplace `data/cabas.csv`. La unica columna requerida es:
 
-- `id`
 - `nombre`
-- `descripcion`
-- `palabras_clave`
 
-Mientras mas descriptiva sea la columna `descripcion`, mejor sera la calidad del agrupamiento.
+Cada nombre debe estar diligenciado y no puede repetirse. No se requiere `id`,
+descripcion ni palabras clave porque el agrupamiento utiliza directamente el
+nombre de cada CABA.

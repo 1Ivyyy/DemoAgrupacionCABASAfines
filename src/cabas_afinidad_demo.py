@@ -48,16 +48,20 @@ def normalize_text(value: str) -> str:
 
 
 def build_documents(df: pd.DataFrame) -> list[str]:
-    required = {"nombre", "descripcion", "palabras_clave"}
-    missing = required.difference(df.columns)
-    if missing:
-        missing_cols = ", ".join(sorted(missing))
-        raise ValueError(f"El archivo de entrada no tiene columnas requeridas: {missing_cols}")
+    if "nombre" not in df.columns:
+        raise ValueError("El archivo de entrada debe contener la columna 'nombre'.")
 
-    return [
-        normalize_text(f"{row.nombre}. {row.descripcion}. {row.palabras_clave}")
-        for row in df.itertuples(index=False)
-    ]
+    names = df["nombre"].fillna("").map(normalize_text)
+    if names.eq("").any():
+        rows = ", ".join(str(index + 2) for index in names[names.eq("")].index)
+        raise ValueError(f"La columna 'nombre' tiene valores vacios en las filas: {rows}.")
+
+    duplicated = names[names.duplicated(keep=False)]
+    if not duplicated.empty:
+        repeated = ", ".join(sorted(duplicated.unique()))
+        raise ValueError(f"Los nombres de las CABAS deben ser unicos. Repetidos: {repeated}.")
+
+    return names.tolist()
 
 
 def top_terms_by_cluster(

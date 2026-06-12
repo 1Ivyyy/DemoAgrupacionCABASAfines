@@ -39,14 +39,13 @@ def render_group(summary, result_table: pd.DataFrame, affinity_matrix: pd.DataFr
         st.caption(f"Terminos representativos: {', '.join(summary.terminos)}")
 
         group_rows = result_table[result_table["grupo_id"] == summary.cluster_id].copy()
-        visible_cols = ["nombre", "descripcion", "afinidad_promedio_grupo"]
+        visible_cols = ["nombre", "afinidad_promedio_grupo"]
         st.dataframe(
             group_rows[visible_cols],
             hide_index=True,
             use_container_width=True,
             column_config={
                 "nombre": "CABA",
-                "descripcion": "Descripcion",
                 "afinidad_promedio_grupo": st.column_config.NumberColumn(
                     "Afinidad promedio interna",
                     format="%.2f%%",
@@ -83,7 +82,10 @@ def main() -> None:
     st.title("Herramienta de Agrupacion de CABAS Afines")
     st.caption("BERTopic + Sentence Transformers")
 
-    uploaded_file = st.file_uploader("Cargar archivo CSV de CABAS", type=["csv"])
+    uploaded_file = st.file_uploader(
+        "Cargar archivo CSV de CABAS (columna requerida: nombre)",
+        type=["csv"],
+    )
     if uploaded_file is None:
         df = load_default_data()
         st.info("Usando el archivo de ejemplo `data/cabas.csv`.")

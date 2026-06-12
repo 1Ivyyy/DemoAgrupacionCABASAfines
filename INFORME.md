@@ -20,7 +20,7 @@ Por eso la demo no solo agrupa por palabras parecidas. Tambien redacta cada grup
 
 ## 3. Insumos creados
 
-Se creo el archivo `data/cabas.csv` con 20 CABAS de ejemplo. Incluye las 15 CABAS listadas en `agents.md`:
+Se creo el archivo `data/cabas.csv` con las 15 CABAS listadas en `agents.md`:
 
 1. Ciencias básicas aplicadas a la ingeniería
 2. Organizaciones y proyectos
@@ -38,12 +38,13 @@ Se creo el archivo `data/cabas.csv` con 20 CABAS de ejemplo. Incluye las 15 CABA
 14. Ingeniería de productos, materiales y procesos
 15. Humanidades en ingeniería
 
-Cada fila contiene:
+Cada fila contiene unicamente:
 
-- `id`: identificador.
-- `nombre`: nombre de la CABA.
-- `descripcion`: descripcion corta de su alcance academico.
-- `palabras_clave`: terminos orientadores.
+- `nombre`: nombre completo y unico de la CABA.
+
+El identificador no es necesario para calcular embeddings, afinidades o grupos.
+La posicion de la fila y el nombre permiten relacionar cada resultado con su
+CABA de origen.
 
 ## 4. Herramientas y dependencias
 
@@ -72,21 +73,16 @@ Este respaldo existe para que el flujo se pueda ejecutar y verificar aun cuando 
 
 ### 5.1 Carga de datos
 
-El script `src/cabas_afinidad_demo.py` lee `data/cabas.csv` con `pandas` y valida que existan las columnas requeridas:
-
-- `nombre`
-- `descripcion`
-- `palabras_clave`
+El script `src/cabas_afinidad_demo.py` lee `data/cabas.csv` con `pandas` y
+valida que exista la columna `nombre`. Tambien rechaza nombres vacios o
+repetidos, porque el nombre se utiliza como identificador visible en la matriz
+de afinidades.
 
 ### 5.2 Construccion documental
 
-Para cada CABA se construye un documento textual uniendo:
-
-- Nombre.
-- Descripcion.
-- Palabras clave.
-
-Esto mejora el agrupamiento porque el modelo no depende solo del nombre de la CABA, que suele ser corto.
+Para cada CABA se utiliza su nombre completo como documento textual. Sentence
+Transformers convierte ese nombre en un embedding semantico que se usa tanto en
+BERTopic como en la modalidad por tolerancia.
 
 ### 5.3 Embeddings semanticos
 
@@ -244,7 +240,7 @@ La ultima ejecucion se realizo con `BERTopic + SentenceTransformer`. Los grupos 
 
 El coeficiente silhouette calculado sobre los textos fue `0.008`. Este valor debe interpretarse con cautela porque el dataset es pequeno y las CABAS son deliberadamente transversales; el objetivo principal de la demo es mostrar el flujo metodologico y producir una primera agrupacion interpretable, no cerrar una clasificacion institucional definitiva.
 
-BERTopic marco algunas CABAS como `-1`, que corresponde a elementos sin grupo estable bajo HDBSCAN. Esto es esperable en datasets pequenos y es util para identificar CABAS que requieren revision experta, mayor descripcion textual o reasignacion manual.
+BERTopic marco algunas CABAS como `-1`, que corresponde a elementos sin grupo estable bajo HDBSCAN. Esto es esperable en datasets pequenos y es util para identificar CABAS que requieren revision experta, un nombre mas especifico o reasignacion manual.
 
 ## 9. Interpretacion esperada
 
@@ -276,7 +272,7 @@ Los grupos generados deben leerse como aproximaciones tecnicas. Para una sustent
 ## 11. Limitaciones
 
 - El dataset es demostrativo, no definitivo.
-- La calidad mejora si cada CABA tiene descripciones mas extensas, productividad academica asociada y palabras clave normalizadas.
+- Los nombres cortos, ambiguos o compuestos principalmente por siglas pueden reducir la precision semantica del agrupamiento.
 - BERTopic y Sentence Transformers requieren descargas grandes, especialmente por PyTorch.
 - La ejecucion con BERTopic puede producir grupos `-1` cuando HDBSCAN no encuentra densidad suficiente para asignar todos los documentos.
 - El porcentaje de tolerancia debe revisarse con criterio experto: no existe un umbral universal valido para todos los conjuntos de CABAS.
